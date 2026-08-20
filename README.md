@@ -8,11 +8,16 @@
 
 ## 部署流程
 
-完整流程圖與逐步說明在[好讀版網頁](https://study2strong.github.io/Launch-Your-Vibe-Coding-Product/)裡，這裡只列重點：
+完整流程圖與逐步說明在[好讀版網頁](https://study2strong.github.io/Launch-Your-Vibe-Coding-Product/)裡，這裡是精簡版：
 
-1. 開分支、改內容、本機自我檢查（AI 輔助：`/simplify`、`/security-review`）
-2. 發 PR，觸發 **CI job**：連結檢查（＋視情況加入 UI 自動化測試），與自動／人工 Code Review 並行，全部通過才解鎖 Merge
-3. Merge 到 `main`，觸發 **CD job**：`vitepress build` 打包 → 部署到 GitHub Pages
+```mermaid
+flowchart LR
+    A[改程式碼／內容] --> B[發 PR]
+    B --> C{{"CI Job\n測試／驗證"}}
+    C -- 通過 --> D[Merge main]
+    D --> E{{"CD Job\n打包／部署"}}
+    E --> F[GitHub Pages 上線]
+```
 
 CI（測試/驗證）與 CD（打包/部署）刻意拆成兩個獨立階段，測試沒過，部署就完全不會被觸發。
 

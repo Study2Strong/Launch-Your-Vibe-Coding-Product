@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitepress'
+import { withMermaid } from 'vitepress-plugin-mermaid'
 
-export default defineConfig({
+export default withMermaid(defineConfig({
   lang: 'zh-Hant',
   title: 'Launch Your Vibe Coding Product',
   description: 'AI 幫你把產品做出來之後，你要怎麼讓它真正上線、隨時可用？',
@@ -22,4 +23,4 @@ export default defineConfig({
       copyright: 'Study2Strong'
     }
   }
-})
+}))

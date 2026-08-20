@@ -30,39 +30,44 @@ title: 首頁
 
 以下是這個 repo 實際在跑的流程，從動手改一行字開始，到你現在看到的網頁更新為止：
 
-```
-開發者                          GitHub（自動化）
-──────                          ────────────────
-開分支
-  │
-改程式碼 / 內容
-  │
-本機自我檢查（AI 輔助：/simplify、/security-review）
-  │
-git push
-  │
-發 PR ───────────────────────▶  ┌─ CI Job（測試／驗證階段）────────┐
-                                 │  · 連結檢查（lychee）            │
-                                 │  · UI 自動化測試（Selenium）*    │
-                                 └─ 與自動 Code Review、人工 Review 並行 ─┘
-                                          │
-                          ┌───────────────┴───────────────┐
-                       未通過                            全部通過
-                          │                                 │
-                    回到「改程式碼」                    解鎖 Merge 按鈕
-                                                             │
-開發者最終確認、Merge ────────────────────────────────────▶ 
-                                                             │
-                                                    ┌─ CD Job（打包＋部署階段）──┐
-                                                    │  · vitepress build       │
-                                                    │  · 上傳為 Pages Artifact  │
-                                                    │  · 部署到 GitHub Pages   │
-                                                    └───────────────────────────┘
-                                                             │
-                                                       網站自動更新完成
+```mermaid
+flowchart TD
+    A[開分支] --> B[改程式碼／內容]
+    B --> C["本機自我檢查<br/>/simplify + /security-review"]
+    C --> D[git push]
+    D --> E[發 PR]
+
+    subgraph CI["CI Job：測試／驗證階段"]
+        F1[連結檢查 lychee]
+        F2["UI 自動化測試 Selenium＊"]
+    end
+
+    E --> CI
+    E --> G[自動 Code Review]
+    E --> H[人工 Code Review]
+
+    CI --> I{"CI 通過 且<br/>Review 無阻擋意見？"}
+    G --> I
+    H --> I
+    I -- 否，回去改程式碼 --> B
+    I -- 是，解鎖 Merge --> J[開發者最終確認並 Merge main]
+
+    subgraph CD["CD Job：打包／部署階段"]
+        K1[vitepress build]
+        K2[上傳 Pages Artifact]
+        K3[部署到 GitHub Pages]
+    end
+
+    J --> CD
+    CD --> L[網站自動更新完成]
+
+    classDef manual fill:#fde2c8,stroke:#c96,color:#333;
+    classDef auto fill:#d3f4dd,stroke:#4a4,color:#333;
+    class A,B,C,D,E,J manual
+    class F1,F2,G,H,K1,K2,K3,L auto
 ```
 
-`*` UI 自動化測試為進階項目，視當次時間預算決定是否加入。
+橘色為手動動作，綠色為自動觸發。`＊` UI 自動化測試為進階項目，視當次時間預算決定是否加入。
 
 比起「自動化流程」全部塞在同一個步驟裡，這裡刻意把 **CI（測試）** 與 **CD（打包＋部署）** 拆成兩個獨立階段：CI 卡住，CD 就完全不會被觸發，兩者責任清楚分離，之後要加測試項目或換部署目標，也不會互相干擾。
 
