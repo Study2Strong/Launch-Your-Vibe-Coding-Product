@@ -24,7 +24,11 @@ jobs:
       - name: Check links in markdown content
         uses: lycheeverse/lychee-action@v2
         with:
-          args: --verbose --no-progress 'docs/**/*.md' 'README.md'
+          # 排除網站自己的網址：首次部署前該網址必然還不存在，是否上線成功由 build-and-deploy job 本身驗證
+          args: >-
+            --verbose --no-progress
+            --exclude 'https://study2strong\.github\.io/Launch-Your-Vibe-Coding-Product.*'
+            'docs/**/*.md' 'README.md'
           fail: true
 
   # CD：打包＋部署階段。只在 push 到 main 且 CI 通過後才會觸發
