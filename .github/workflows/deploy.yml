@@ -35,6 +35,37 @@ jobs:
             'docs/**/*.md' 'README.md'
           fail: true # 只要有連結失效就讓這個 job 失敗，擋住後面的 build／deploy
 
+      # UI 測試需要有實際跑得起來的頁面可以打開，先建置
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build static site
+        run: npm run docs:build
+
+      # 背景啟動本機預覽伺服器，等它真的回應了才繼續，讓 Selenium 有網址可以連
+      - name: Start preview server
+        run: |
+          npm run docs:preview -- --port 4173 &
+          npx --yes wait-on http://localhost:4173/Launch-Your-Vibe-Coding-Product/
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      # Selenium 4.6+ 內建 Selenium Manager，會自動偵測並下載對應版本的 chromedriver，不用手動安裝
+      - name: Install UI test dependencies
+        run: pip install -r tests/requirements.txt
+
+      # 簡單案例：點錨點導覽連結，斷言網址 hash 與對應段落確實出現
+      - name: Run UI smoke test
+        run: pytest tests/test_ui_smoke.py
+
   # CD／建置 job：只在 push main 且 CI 通過後才會觸發
   build:
     needs: test # 依賴 CI 先過，測試沒過就不浪費資源打包
