@@ -39,7 +39,7 @@ flowchart TD
 
     subgraph CI["CI Job：測試／驗證階段"]
         F1[連結檢查 lychee]
-        F2["UI 自動化測試 Selenium＊"]
+        F2["UI 自動化測試 Selenium"]
     end
 
     E --> CI
@@ -69,7 +69,7 @@ flowchart TD
     class F1,F2,G,H,K1,K2,K3,L auto
 ```
 
-橘色為手動動作，綠色為自動觸發。`＊` UI 自動化測試為進階項目，視當次時間預算決定是否加入。
+橘色為手動動作，綠色為自動觸發。`test` job 裡的連結檢查與 UI 自動化測試（Selenium + pytest）都是實際在跑的檢查，不是示意。
 
 比起「自動化流程」全部塞在同一個步驟裡，實際的 workflow 拆成三個獨立 job：**`test`（CI）→ `build`（CD／打包）→ `deploy`（CD／部署）**，用 `needs` 串起依賴關係。任何一個 job 沒過，後面的 job 就不會被觸發；之後要加測試項目、換部署目標，也不會互相干擾。
 
