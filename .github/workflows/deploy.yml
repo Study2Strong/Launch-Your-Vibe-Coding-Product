@@ -6,11 +6,6 @@ on:
   push:
     branches: [main]
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -19,9 +14,11 @@ jobs:
   # CI：PR 與 push main 都會跑，通過與否決定要不要放行合併／部署
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # 只需要讀取原始碼來跑連結檢查
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Check links in markdown content
         uses: lycheeverse/lychee-action@v2
         with:
@@ -37,11 +34,13 @@ jobs:
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # 只需要讀取原始碼來打包，部署權限留給 deploy job
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 20
       - name: Install dependencies
@@ -49,20 +48,24 @@ jobs:
       - name: Build static site
         run: npm run docs:build
       - name: Setup Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
+      # 這個 job 只負責打包出 Pages artifact，實際發布交給下面的 deploy job
       - name: Upload build output as Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: docs/.vitepress/dist
 
-  # CD／部署：發布 build job 產出的 artifact
+  # CD／部署：把 build job 產出的 artifact 發布上線
   deploy:
-    needs: build
+    needs: build # 依賴 build job，避免部署時 artifact 還不存在
     runs-on: ubuntu-latest
+    permissions:
+      pages: write # 部署到 Pages
+      id-token: write # 讓 GitHub 驗證這次部署確實來自本 workflow
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
