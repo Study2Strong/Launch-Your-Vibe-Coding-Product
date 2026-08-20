@@ -32,46 +32,31 @@ title: 首頁
 
 ```mermaid
 flowchart TD
-    A[開分支] --> B[改程式碼／內容]
-    B --> C["本機自我檢查<br/>/simplify + /security-review"]
-    C --> D[git push]
-    D --> E[發 PR]
+    A[開分支]:::manual --> B[改程式碼／內容]:::manual
+    B --> C["本機自我檢查<br/>/simplify + /security-review"]:::manual
+    C --> D[git push]:::manual
+    D --> E[發 PR]:::manual
 
-    subgraph CI["CI Job：測試／驗證階段"]
-        F1[連結檢查 lychee]
-        F2["UI 自動化測試 Selenium"]
-    end
+    E --> F[CI 自動檢查]:::auto
+    E --> G[自動 Code Review]:::auto
+    E --> H[人工 Code Review]:::manual
 
-    E --> CI
-    E --> G[自動 Code Review]
-    E --> H[人工 Code Review]
-
-    CI --> I{"CI 通過 且<br/>Review 無阻擋意見？"}
+    F --> I{"CI 通過 且<br/>Review 無阻擋意見？"}:::decision
     G --> I
     H --> I
     I -- 否，回去改程式碼 --> B
-    I -- 是，解鎖 Merge --> J[開發者最終確認並 Merge main]
+    I -- 是，解鎖 Merge --> J[開發者最終確認並 Merge main]:::manual
 
-    subgraph CDBuild["CD／build job：打包階段"]
-        K1[vitepress build]
-        K2[上傳 Pages Artifact]
-    end
-    subgraph CDDeploy["CD／deploy job：部署階段"]
-        K3[部署到 GitHub Pages]
-    end
-
-    J --> CDBuild --> CDDeploy
-    CDDeploy --> L[網站自動更新完成]
+    J --> K[CD／build：打包]:::auto
+    K --> L[CD／deploy：部署]:::auto
+    L --> M[網站自動更新完成]:::auto
 
     classDef manual fill:#fde2c8,stroke:#c96,color:#333;
     classDef auto fill:#d3f4dd,stroke:#4a4,color:#333;
-    class A,B,C,D,E,J manual
-    class F1,F2,G,H,K1,K2,K3,L auto
+    classDef decision fill:#eaecee,stroke:#7f8c8d,color:#333;
 ```
 
-橘色為手動動作，綠色為自動觸發。`test` job 裡的連結檢查與 UI 自動化測試（Selenium + pytest）都是實際在跑的檢查，不是示意。
-
-比起「自動化流程」全部塞在同一個步驟裡，實際的 workflow 拆成三個獨立 job：**`test`（CI）→ `build`（CD／打包）→ `deploy`（CD／部署）**，用 `needs` 串起依賴關係。任何一個 job 沒過，後面的 job 就不會被觸發；之後要加測試項目、換部署目標，也不會互相干擾。
+橘色為手動動作，綠色為自動觸發，灰色是決定要不要放行的判斷點。「CI 自動檢查」實際上是連結檢查（lychee）跟 UI 自動化測試（Selenium + pytest）兩項都要過，「CD」對應到 GitHub Actions 裡 `build`（打包）跟 `deploy`（部署）兩個獨立 job——這是刻意跟原本混在一起的單一自動部署節點做出的區隔，其餘實作細節不畫進圖裡，避免流程圖變成架構圖。
 
 這張流程圖不只是說明文件而已：`main` 分支已經開啟 GitHub 的 branch protection，直接 `push` 到 `main` 會被拒絕，只能透過 PR 合併，而且 PR 必須先讓 `test` job 通過才會解鎖 Merge 按鈕——這個限制連 repo 的擁有者（admin）自己都逃不掉。也就是說，這份筆記你現在看到的每一次更新，走的真的就是圖上這條路，不是「畫給人看」的示意。
 
