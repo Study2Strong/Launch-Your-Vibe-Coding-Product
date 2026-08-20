@@ -1,24 +1,30 @@
 name: CI/CD
 
 on:
+  # PR 開啟／更新時只跑 CI，用來擋壞掉的改動
   pull_request:
     branches: [main]
+  # push 到 main（通常是 PR merge 後）才會繼續跑 CD
   push:
     branches: [main]
 
+# 避免同時有多次 push 觸發部署互相搶跑，同一時間只允許一個 Pages 部署在進行
 concurrency:
   group: pages
   cancel-in-progress: false
 
 jobs:
-  # CI：PR 與 push main 都會跑，通過與否決定要不要放行合併／部署
+  # CI job：PR 與 push main 都會跑，通過與否決定要不要放行合併／部署
   test:
     runs-on: ubuntu-latest
     permissions:
       contents: read # 只需要讀取原始碼來跑連結檢查
     steps:
+      # 把 repo 內容抓下來，後面的檢查才有檔案可以讀
       - name: Checkout
         uses: actions/checkout@v7
+
+      # 掃過 docs/ 與 README 裡所有連結，確保沒有失效網址才放行
       - name: Check links in markdown content
         uses: lycheeverse/lychee-action@v2
         with:
@@ -27,35 +33,46 @@ jobs:
             --verbose --no-progress
             --exclude 'https://study2strong\.github\.io/Launch-Your-Vibe-Coding-Product.*'
             'docs/**/*.md' 'README.md'
-          fail: true
+          fail: true # 只要有連結失效就讓這個 job 失敗，擋住後面的 build／deploy
 
-  # CD／建置：只在 push main 且 CI 通過後才會觸發
+  # CD／建置 job：只在 push main 且 CI 通過後才會觸發
   build:
-    needs: test
+    needs: test # 依賴 CI 先過，測試沒過就不浪費資源打包
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read # 只需要讀取原始碼來打包，部署權限留給 deploy job
     steps:
+      # 把 repo 內容抓下來，才有 docs/ 原始檔可以打包
       - name: Checkout
         uses: actions/checkout@v7
+
+      # 安裝 VitePress 打包需要的 Node.js 執行環境
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
           node-version: 20
+
+      # 依 package-lock.json 安裝相依套件，版本與本機一致、結果可重現
       - name: Install dependencies
         run: npm ci
+
+      # 執行 vitepress build，把 docs/ 內容產出成靜態網站檔案
       - name: Build static site
         run: npm run docs:build
+
+      # 準備 Pages 部署所需的中繼設定（如 base path）
       - name: Setup Pages
         uses: actions/configure-pages@v6
-      # 這個 job 只負責打包出 Pages artifact，實際發布交給下面的 deploy job
+
+      # 把打包好的靜態檔案包成 Pages 專用 artifact；這個 job 只到這裡為止，
+      # 實際發布交給下面的 deploy job
       - name: Upload build output as Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:
           path: docs/.vitepress/dist
 
-  # CD／部署：把 build job 產出的 artifact 發布上線
+  # CD／部署 job：把 build job 產出的 artifact 發布上線
   deploy:
     needs: build # 依賴 build job，避免部署時 artifact 還不存在
     runs-on: ubuntu-latest
@@ -66,6 +83,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # 把上一個 job 上傳的 artifact 正式發布到 GitHub Pages
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
