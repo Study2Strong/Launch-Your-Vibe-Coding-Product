@@ -6,7 +6,7 @@ title: 首頁
 
 Vibe Coding 讓你可以在幾分鐘內，跟 AI 一起把一個想法變成看起來能動的網站或 App。但「做出來」只是第一步——它要能被更多人打開、真正開始產生價值，而不是停留在本機或只有你自己的帳號看得到，中間還有一段路要走。
 
-這份筆記記錄的就是這一段：從「本機跑得動」到「任何人在任何時間、任何裝置都打得開、隨時可用」，一個真實在跑的 CI/CD 流程。而且這份筆記本身，就是照著這套流程被你現在看到的這個網址部署出來的。
+這份筆記記錄的就是這一段：從「本機跑得動」到「任何人在任何時間、任何裝置都打得開、隨時可用」，一個真實在跑的 CI/CD 流程。而且這份筆記本身，就是照著這套流程被你現在看到的這個網頁部署出來的。
 
 ## 為什麼「上線」這一步不能省
 
@@ -17,48 +17,48 @@ Vibe Coding 讓你可以在幾分鐘內，跟 AI 一起把一個想法變成看�
 
 這些問題不是靠「AI 更聰明」就能解決，而是要靠**工程紀律**——也就是 CI/CD。
 
-## 專有名詞白話解釋
+## 專有名詞白話說
 
 如果你不是軟體工程背景，這裡先建立幾個後面會一直用到的詞彙，點開就能看說明：
 
-::: details Repo（版本庫）
+::: details Repo (Repository，版本庫)
 存放程式碼跟所有歷史紀錄的地方，可以想成一個有回溯功能的資料夾。
 :::
 
-::: details 分支（Branch）
-專案「正式版本」所在的那條分支通常叫 `main`（GitHub 現在新建 repo 預設用這個名稱；帳號層級的預設值可以在 [Repository default branch](https://github.com/settings/repositories) 設定），比較舊的 repo 或部分教學文章可能還是叫 `master`，兩者角色一樣、只是名字不同。你看到的其他分支名稱可以理解為開發過程中從主線暫時獨立出來的「副本」，讓你可以放心改動，待沒問題後才合併回 `main`。
+::: details Branch (分支)
+專案「正式版本」所在的那條分支通常叫 `main` (GitHub 現在新建 repo 預設用這個名稱；帳號層級的預設值可以在 [Repository default branch](https://github.com/settings/repositories) 設定)，比較舊的 repo 或部分教學文章可能還是叫 `master`，兩者角色一樣、只是名字不同。你看到的其他分支名稱可以理解為開發過程中從主線暫時獨立出來的「副本」，讓你可以放心改動，待沒問題後才合併回 `main`。
 :::
 
-::: details Commit（提交）
+::: details Commit (提交)
 把一次改動存成一個有紀錄、可以回溯的版本點，通常會附一句話說明改了什麼、為什麼改。
 :::
 
-::: details PR（Pull Request，合併請求）
+::: details PR (Pull Request，合併請求)
 「我這個分支改好了，請審查並合併回 `main`」的正式請求，通常會經過自動檢查與人工審查才會被放行。
 :::
 
-::: details Merge（合併）
+::: details Merge (合併)
 把 PR 裡的改動真正併回 `main`，此後 `main` 就會包含這次的改動。
 :::
 
-::: details CI（持續整合，Continuous Integration）
+::: details CI (Continuous Integration，持續整合)
 每次有人提出改動，自動幫你檢查「這個改動有沒有把東西弄壞」——連結有沒有失效、測試有沒有過。檢查沒過，不准合併。
 :::
 
-::: details CD（持續部署，Continuous Deployment）
+::: details CD (Continuous Deployment，持續部署)
 改動一旦通過檢查、被合併，自動幫你打包、發布上線，不需要手動上傳任何檔案。
 :::
 
-::: details Build（建置／打包）
+::: details Build (建置/打包)
 把原始檔案轉換、打包成可以直接執行或發布的成品。
 :::
 
-::: details Deploy（部署／上線）
+::: details Deploy (部署/上線)
 把打包好的成品真正放到一個大家都能連得到的地方。
 :::
 
-::: details Branch protection（分支保護規則）
-針對特定分支（例如 `main`）設定的規則，例如「不能直接 push，一定要走 PR，還要通過檢查才能合併」，違反規則的操作會被 GitHub 直接拒絕。
+::: details Branch protection (分支保護規則)
+針對特定分支 (例如 `main`) 設定的規則，例如「不能直接 push，一定要走 PR，還要通過檢查才能合併」，違反規則的操作會被 GitHub 直接拒絕。
 :::
 
 CI 跟 CD 要**分開**看：CI 負責「擋壞掉的東西」，CD 負責「把好的東西送上線」。混在一起做，測試沒過也可能誤觸發部署，這是很多人第一次自己兜 CI/CD 時會踩的坑。
@@ -69,7 +69,7 @@ CI 跟 CD 要**分開**看：CI 負責「擋壞掉的東西」，CD 負責「把
 
 ```mermaid
 flowchart TD
-    A["1. 開分支"]:::manual --> B["2. 改程式碼／內容"]:::manual
+    A["1. 開分支"]:::manual --> B["2. 改程式碼/內容"]:::manual
     B --> C["3. 本機自我檢查"]:::manual
     C --> D["4. 提交並推送改動"]:::manual
     D --> E["5. 發 PR"]:::manual
@@ -84,9 +84,9 @@ flowchart TD
     I -- 否，回去改程式碼 --> B
     I -- 是，解鎖 Merge --> J["8. 開發者最終確認並 Merge main"]:::manual
 
-    J --> K["9. CD／build：打包"]:::auto
-    K --> L["10. CD／deploy：部署"]:::auto
-    L --> M["11. 產品自動更新完成"]:::auto
+    J --> K["9. CD/build：打包"]:::auto
+    K --> L["10. CD/deploy：部署"]:::auto
+    L --> M["11. 產品自動部署完成"]:::auto
 
     classDef manual fill:#fde2c8,stroke:#c96,color:#333;
     classDef auto fill:#d3f4dd,stroke:#4a4,color:#333;
@@ -102,7 +102,7 @@ flowchart TD
 ### 1. 開分支
 
 - **為什麼**：改動需要有獨立範圍，不直接動到 `main`。這不只是良好習慣——`main` 已經設定 GitHub 的 branch protection：不能直接 push，只能透過 PR 合併，而且 PR 必須先通過 CI 的 `test` 檢查才能解鎖 Merge，這個限制連 repo 擁有者自己都逃不掉
-- 前置條件：本機需要先裝好 Git
+- 前置條件：本機需要先裝好 Git，並且要有 GitHub 帳號、一個可以推送的 repo
 
 **對應指令/動作**：
 
@@ -110,16 +110,16 @@ flowchart TD
 git checkout -b <branch-name>
 ```
 
-### 2. 改程式碼／內容
+### 2. 改程式碼/內容
 
 - **為什麼**：這是整個流程唯一真正「產生內容」的一步，前面開分支、後面所有檢查，都是圍繞著這一步在做把關
 
-**對應指令/動作**：人工或 AI 輔助（例如先用 Plan Mode 讓 AI 提一份具體計畫、反覆確認方向）在編輯器裡直接修改檔案，沒有固定指令。
+**對應指令/動作**：人工或 AI 輔助 (例如先用 Plan Mode 讓 AI 提一份具體計畫、反覆確認方向) 在編輯器裡直接修改檔案，沒有固定指令。
 
 ### 3. 本機自我檢查
 
 - **為什麼**：提交之前先自己抓明顯問題，不要等到 PR 階段才被抓包
-- 前置條件：本機需要裝好 Node.js + npm（下面的建置指令需要）
+- 前置條件：本機需要裝好 Node.js + npm (下面的建置指令需要)
 
 **對應指令/動作**：
 
@@ -141,13 +141,13 @@ npm install
 npm run docs:build
 ```
 
-用 Claude Code 做清理與抓 bug，這是提交前真正把關的一步：
+以 Claude Code 為例：用它做清理與抓 bug，這是提交前真正把關的一步：
 
 ```
 /code-review
 ```
 
-只有這次改動碰到安全性相關內容（權限設定、密鑰、外部輸入等）時，才需要加跑：
+只有這次改動碰到安全性相關內容 (權限設定、密鑰、外部輸入等) 時，才需要加跑：
 
 ```
 /security-review
@@ -183,14 +183,15 @@ PR 一開，以下三項就同時觸發、並行執行，彼此不用等對方�
 ### 6.1 CI 自動檢查
 
 - **為什麼**：自動擋住明顯壞掉的東西，不用每次都靠人眼巡一遍
-- 實際在跑兩項檢查：連結檢查（[lychee-action](https://github.com/lycheeverse/lychee-action)，掃過 README／網頁裡所有連結）、UI 自動化測試（Selenium + pytest，點錨點導覽連結，斷言網址與段落真的對得上）
-- 如果想在本機重現 UI 測試：需要 Node.js（建置＋起預覽伺服器）與 Python 3；Selenium 4.6+ 內建 [Selenium Manager](https://www.selenium.dev/documentation/selenium_manager/)，會自動偵測並下載對應版本的 chromedriver，不用手動安裝
+- 實際在跑兩項檢查：連結檢查 ([lychee-action](https://github.com/lycheeverse/lychee-action)，掃過 README/網頁裡所有連結)、UI 自動化測試 (Selenium + pytest，點錨點導覽連結，斷言網址與段落真的對得上)
+- 如果想在本機重現 UI 測試：需要 Node.js (建置＋起預覽伺服器) 與 Python 3；Selenium 4.6+ 內建 [Selenium Manager](https://www.selenium.dev/documentation/selenium_manager/)，會自動偵測並下載對應版本的 chromedriver，不用手動安裝
 
 **對應指令/動作**：GitHub Actions 的 `test` job 自動執行，不需要手動觸發。
 
 ### 6.2 自動 Code Review
 
 - **為什麼**：PR 開出後自動留下具體建議，多一層意見
+- 以 GitHub Copilot 為例：自動幫自己開的 PR 做 Code Review，只有 Copilot Pro、Copilot Pro+ 或 Copilot Max 方案才能用 ([來源](https://docs.github.com/en/copilot/how-tos/copilot-on-github/set-up-copilot/configure-automatic-review#configuring-automatic-code-review-for-your-own-pull-requests))
 
 **對應指令/動作**：GitHub Copilot Review 自動執行。
 
@@ -216,9 +217,18 @@ PR 一開，以下三項就同時觸發、並行執行，彼此不用等對方�
 gh pr merge --merge
 ```
 
-### 9. CD／build：打包
+::: tip 接下來的第 9、10 步，以部署到 GitHub Pages 為例
+這個 repo 實際部署到 GitHub Pages，開始之前先講清楚前置條件與限制條件：
 
-- **為什麼**：把內容打包成靜態網站檔案；之所以只產出「靜態」檔案，是因為這個 repo 部署的目的地 GitHub Pages 只支援純靜態內容，不能執行伺服器端程式、不能直接連資料庫（[來源](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits)）
+- 前置條件：免費方案下 repo 必須設為 **public**，private repo 要 GitHub Pro/Team 付費方案才能搭配 Pages ([來源](https://docs.github.com/get-started/learning-about-github/githubs-products))
+- 限制條件 ([來源](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits))：網站大小軟上限 1GB；頻寬軟上限 100GB/月；用自訂 GitHub Actions workflow 部署 (我們就是這樣做) 不受「每小時 10 次」的軟限制；單次部署逾時 10 分鐘；部署內容全部公開可見，不能放密鑰；不可作為商業交易/SaaS 的主要用途
+
+如果換成別的部署平台，只有第 9、10 這兩步會受影響：`.github/workflows/deploy.yml` 裡 `build`/`deploy` 兩個 job (尤其 `configure-pages`、`upload-pages-artifact`、`deploy-pages` 這幾個 GitHub Pages 專用的 action，要換成新平台對應的動作)，還有 `docs/.vitepress/config.mts` 裡的 `base` 路徑設定 (GitHub Pages 是 project site，路徑要帶 repo 名稱；大多數其他平台部署在根路徑，`base` 通常要改回 `/`)。第 1～8 步 (開分支到 Merge 這整段 CI/審查流程) 跟部署目的地無關，完全不受影響。
+:::
+
+### 9. CD/build：打包
+
+- **為什麼**：把內容打包成靜態網站檔案；之所以只產出「靜態」檔案，是因為這個 repo 部署的目的地 GitHub Pages 只支援純靜態內容，不能執行伺服器端程式、不能直接連資料庫 ([來源](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits))
 
 **對應指令/動作**：GitHub Actions 的 `build` job 自動執行：
 
@@ -226,26 +236,25 @@ gh pr merge --merge
 npm run docs:build
 ```
 
-### 10. CD／deploy：部署
+### 10. CD/deploy：部署
 
 - **為什麼**：把上一步打包好的內容真正發布上線
-- 前置條件：免費方案下 repo 必須設為 **public**，private repo 要 GitHub Pro／Team 付費方案才能搭配 Pages（[來源](https://docs.github.com/get-started/learning-about-github/githubs-products)）
-- 限制條件（[來源](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits)）：網站大小軟上限 1GB；頻寬軟上限 100GB/月；用自訂 GitHub Actions workflow 部署（我們就是這樣做）不受「每小時 10 次」的軟限制；單次部署逾時 10 分鐘；部署內容全部公開可見，不能放密鑰；不可作為商業交易／SaaS 的主要用途
 
 **對應指令/動作**：GitHub Actions 的 `deploy` job 自動執行，透過 `actions/deploy-pages` 發布。
 
-::: tip 如果換成別的部署平台
-只有第 9、10 這兩步會受影響：`.github/workflows/deploy.yml` 裡 `build`／`deploy` 兩個 job（尤其 `configure-pages`、`upload-pages-artifact`、`deploy-pages` 這幾個 GitHub Pages 專用的 action，要換成新平台對應的動作），還有 `docs/.vitepress/config.mts` 裡的 `base` 路徑設定（GitHub Pages 是 project site，路徑要帶 repo 名稱；大多數其他平台部署在根路徑，`base` 通常要改回 `/`）。第 1～8 步（開分支到 Merge 這整段 CI／審查流程）跟部署目的地無關，完全不受影響。
-:::
+### 11. 產品自動部署完成
 
-### 11. 產品自動更新完成
+你現在看到的這個網頁，就是這整條流程跑完的結果。想看實際跑過的紀錄，可以直接看[這個 repo 的 Actions 頁面](https://github.com/Study2Strong/Launch-Your-Vibe-Coding-Product/actions)。
 
-你現在看到的這個網址，就是這整條流程跑完的結果。想看實際跑過的紀錄，可以直接看[這個 repo 的 Actions 頁面](https://github.com/Study2Strong/Launch-Your-Vibe-Coding-Product/actions)。
+## 邊界與下一步
 
-## 下一步規劃（Roadmap）
+這個網頁就是依照以上流程逐步上線的，但也必須講清楚此處邊界，而不是假裝已經做完！如果網頁串接了後端服務或資料庫，前面 1～8 步 (開分支到 Merge) 這段審查流程還是照樣適用，但第 9、10 步的部署目的地就不能再用 GitHub Pages (只支援靜態內容)，要換成容器化＋雲端服務。
 
-這個網頁就是依照以上流程逐步上線的，但也必須講清楚此處邊界，而不是假裝已經做完！如果網頁串接了後端服務或資料庫，前面 1～8 步（開分支到 Merge）這段審查流程還是照樣適用，但第 9、10 步的部署目的地就不能再用 GitHub Pages（只支援靜態內容），要換成容器化＋雲端服務。
+<small>
+💡 **後端服務**：跑在伺服器上、負責處理邏輯與資料的程式 (相對於瀏覽器端的「前端」)<br>
+💡 **資料庫**：專門用來儲存、查詢資料的服務 (例如 MySQL、PostgreSQL)<br>
+💡 **容器化**：把程式跟它需要的執行環境打包成同一個可攜帶單位 (例如 Docker)<br>
+💡 **雲端服務**：向雲端服務商租用隨時可以擴減的運算資源，取代自己買機器架站 (例如 AWS、GCP、Azure)
+</small>
 
-<small>💡 **後端服務**：跑在伺服器上、負責處理邏輯與資料的程式（相對於瀏覽器端的「前端」）。**資料庫**：專門用來儲存、查詢資料的服務。**容器化**：把程式跟它需要的執行環境打包成同一個可攜帶單位（例如 Docker）。**雲端服務**：向雲端服務商租用隨時可以擴減的運算資源，取代自己買機器架站。</small>
-
-當產品改動越來越多，光靠連結檢查跟 UI smoke test 不夠，需要更完整的自動化測試（單元測試、API 測試、CI 自動化迴歸驗證），才能真的放心說「每一次改動都不會弄壞線上正在跑的東西」。
+當產品改動越來越多，光靠連結檢查跟 UI smoke test 不夠，需要更完整的自動化測試 (單元測試、API 測試、CI 自動化迴歸驗證)，才能真的放心說「每一次改動都不會弄壞線上正在跑的東西」。
