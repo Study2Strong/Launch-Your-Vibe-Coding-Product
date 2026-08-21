@@ -8,7 +8,7 @@ Vibe Coding 讓你可以在幾分鐘內跟 AI 一起把一個想法變成看起�
 
 ## 部署流程
 
-完整流程圖、每一步為什麼要做、誰做、實際指令是什麼，都在[好讀版網頁](https://study2strong.github.io/Launch-Your-Vibe-Coding-Product/)裡逐步拆解，這裡只放精簡版：
+完整流程圖、每一步為什麼要做、對應指令是什麼，都在[好讀版網頁](https://study2strong.github.io/Launch-Your-Vibe-Coding-Product/)裡逐步拆解，這裡只放精簡版：
 
 ```mermaid
 flowchart LR
@@ -16,9 +16,7 @@ flowchart LR
     B --> C{{"CI Job\n測試／驗證"}}
     C -- 通過 --> D[Merge main]
     D --> E{{"CD Job\n打包／部署"}}
-    E --> F[GitHub Pages 上線]
+    E --> F[產品上線]
 ```
 
-CI（測試/驗證）與 CD（打包/部署）刻意拆成兩個獨立階段，測試沒過，部署就完全不會被觸發。
-
-`main` 分支已開啟 branch protection：不能直接 push，只能透過 PR 合併，且 PR 必須先通過 CI 的 `test` 檢查——上面這張圖不只是說明文件，是這個 repo 實際強制執行的規則。
+CI（測試/驗證）跟 CD（打包/部署）刻意拆成兩個獨立階段，白話講就是：**任何一關沒過，這次改動就不會上線**——而且線上原本正常運作的版本也不會被動到，不用擔心一次沒過關的改動，把正在跑的產品弄壞。
