@@ -1,5 +1,7 @@
 # Launch Your Vibe Coding Product
 
+[![CI/CD](https://github.com/Study2Strong/Launch-Your-Vibe-Coding-Product/actions/workflows/deploy.yml/badge.svg)](https://github.com/Study2Strong/Launch-Your-Vibe-Coding-Product/actions/workflows/deploy.yml)
+
 📖 **[網頁好讀版](https://study2strong.github.io/Launch-Your-Vibe-Coding-Product/)** — 完整內容、逐步拆解、前置條件與限制條件都在這裡
 
 ## 這是什麼
@@ -12,7 +14,7 @@ Vibe Coding 讓你可以在幾分鐘內跟 AI 一起把一個想法變成看起�
 
 ```mermaid
 flowchart LR
-    A[改程式碼／內容] --> B[發 PR]
+    A[開發並 Commit] --> B[發 PR]
     B --> C{{"CI Job\n測試／驗證"}}
     C -- 通過 --> D[Merge main]
     D --> E{{"CD Job\n打包／部署"}}
